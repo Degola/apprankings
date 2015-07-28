@@ -31,6 +31,7 @@ import datetime
 import functools
 import re
 import sys
+import time
 
 from collections import deque, namedtuple
 from threading import Thread
@@ -264,14 +265,21 @@ def scrape(query, storefront, details):
     req.add_header('User-Agent', 'iTunes/10.4.1 (Macintosh; Intel Mac OS X 10.6.8) AppleWebKit/534.50')
     req.add_header('X-Apple-Store-Front', storefront)
 
-    f = urlopen(req)
-    for rank, match in enumerate(app_re.finditer(f.read()), start=1):
-        name, appid = match.groups()
-        item = details.copy()
-        item['rank'] = rank
-        item['name'] = decode(unicode(name, 'utf-8'))
-        item['appid'] = int(appid)
-        yield item
+    try:
+        print('Call %s' % req)
+        f = urlopen(req)
+        
+        for rank, match in enumerate(app_re.finditer(f.read()), start=1):
+            name, appid = match.groups()
+            item = details.copy()
+            item['rank'] = rank
+            item['name'] = decode(unicode(name, 'utf-8'))
+            item['appid'] = int(appid)
+            yield item
+    except:
+        print('Exception caught, waiting 5 seconds')    
+        time.sleep(5)
+        scrape(query, storefront, details)
 
 class BoundHTTPHandler(HTTPHandler):
 
