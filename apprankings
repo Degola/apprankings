@@ -266,7 +266,6 @@ def scrape(query, storefront, details):
     req.add_header('X-Apple-Store-Front', storefront)
 
     try:
-        print('Call %s' % req)
         f = urlopen(req)
         
         for rank, match in enumerate(app_re.finditer(f.read()), start=1):
